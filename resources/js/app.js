@@ -1,9 +1,1 @@
-document.querySelectorAll('[data-color-picker]').forEach((picker) => {
-    picker.addEventListener('input', () => {
-        const target = document.querySelector(picker.dataset.colorPicker);
-
-        if (target) {
-            target.value = picker.value;
-        }
-    });
-});
+// arquivo js do projeto (por enquanto nao precisou de nada aqui)

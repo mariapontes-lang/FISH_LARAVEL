@@ -8,74 +8,69 @@ use Illuminate\Http\Request;
 
 class FishController extends Controller
 {
+    // lista todos os peixes
     public function index()
     {
-        $fishes = Fish::with('type')->latest()->paginate(9);
+        $fishes = Fish::with('type')->orderBy('id')->get();
 
-        $totalFishes = Fish::count();
-        $totalTypes = TypeFish::count();
-        $lastUpdate = Fish::latest('updated_at')->first()?->updated_at;
-
-        return view('fishes.index', compact('fishes', 'totalFishes', 'totalTypes', 'lastUpdate'));
+        return view('fishes.index', ['fishes' => $fishes]);
     }
 
+    // mostra um peixe
     public function show(Fish $fish)
     {
-        $fish->load('type');
-
-        return view('fishes.show', compact('fish'));
+        return view('fishes.show', ['fish' => $fish]);
     }
 
+    // tela de cadastro
     public function create()
     {
-        $types = TypeFish::orderBy('name')->get();
+        $types = TypeFish::all();
 
-        return view('fishes.create', compact('types'));
+        return view('fishes.create', ['types' => $types]);
     }
 
+    // salva o peixe no banco
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:100'],
-            'color' => ['required', 'string', 'max:100'],
-            'typeId' => ['required', 'exists:type_fish,id'],
+        $request->validate([
+            'name' => 'required|max:100',
+            'color' => 'required|max:100',
+            'typeId' => 'required|exists:type_fish,id',
         ]);
 
-        Fish::create($data);
+        Fish::create($request->only('name', 'color', 'typeId'));
 
-        return redirect()
-            ->route('fishes.index')
-            ->with('status', 'Peixe cadastrado com sucesso.');
+        return redirect()->route('fishes.index')->with('status', 'Peixe cadastrado com sucesso!');
     }
 
+    // tela de editar
     public function edit(Fish $fish)
     {
-        $types = TypeFish::orderBy('name')->get();
+        $types = TypeFish::all();
 
-        return view('fishes.edit', compact('fish', 'types'));
+        return view('fishes.edit', ['fish' => $fish, 'types' => $types]);
     }
 
+    // atualiza o peixe
     public function update(Request $request, Fish $fish)
     {
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:100'],
-            'color' => ['required', 'string', 'max:100'],
-            'typeId' => ['required', 'exists:type_fish,id'],
+        $request->validate([
+            'name' => 'required|max:100',
+            'color' => 'required|max:100',
+            'typeId' => 'required|exists:type_fish,id',
         ]);
 
-        $fish->update($data);
+        $fish->update($request->only('name', 'color', 'typeId'));
 
-        return redirect()
-            ->route('fishes.index')
-            ->with('status', 'Peixe atualizado com sucesso.');
+        return redirect()->route('fishes.index')->with('status', 'Peixe atualizado com sucesso!');
     }
 
+    // exclui o peixe
     public function destroy(Fish $fish)
     {
         $fish->delete();
 
-        return redirect()
-            ->route('fishes.index')
-            ->with('status', 'Peixe removido do catálogo.');
+        return redirect()->route('fishes.index')->with('status', 'Peixe excluído!');
     }
 }

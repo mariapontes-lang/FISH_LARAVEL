@@ -7,11 +7,12 @@ use Illuminate\Http\Request;
 
 class TypeFishController extends Controller
 {
+    // lista os tipos com a quantidade de peixes de cada um
     public function index()
     {
-        $types = TypeFish::withCount('fishes')->orderBy('name')->get();
+        $types = TypeFish::withCount('fishes')->get();
 
-        return view('types.index', compact('types'));
+        return view('types.index', ['types' => $types]);
     }
 
     public function create()
@@ -21,23 +22,19 @@ class TypeFishController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:50', 'unique:type_fish,name'],
+        $request->validate([
+            'name' => 'required|max:50|unique:type_fish,name',
         ]);
 
-        TypeFish::create($data);
+        TypeFish::create($request->only('name'));
 
-        return redirect()
-            ->route('types.index')
-            ->with('status', 'Tipo cadastrado com sucesso.');
+        return redirect()->route('types.index')->with('status', 'Tipo cadastrado com sucesso!');
     }
 
     public function destroy(TypeFish $type)
     {
         $type->delete();
 
-        return redirect()
-            ->route('types.index')
-            ->with('status', 'Tipo removido junto com seus peixes.');
+        return redirect()->route('types.index')->with('status', 'Tipo excluído!');
     }
 }
